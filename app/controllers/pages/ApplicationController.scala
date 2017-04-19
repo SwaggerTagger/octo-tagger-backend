@@ -6,7 +6,7 @@ import com.mohiva.play.silhouette.api.{ LogoutEvent, Silhouette }
 import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
 import controllers.{ WebJarAssets, pages }
 import play.api.i18n.{ I18nSupport, MessagesApi }
-import play.api.mvc.{ Action, AnyContent, Controller }
+import play.api.mvc.{ Action, AnyContent, Call, Controller }
 import utils.auth.DefaultEnv
 
 import scala.concurrent.Future
@@ -41,7 +41,7 @@ class ApplicationController @Inject() (
    * @return The result to display.
    */
   def signOut: Action[AnyContent] = silhouette.SecuredAction.async { implicit request =>
-    val result = Redirect(pages.routes.ApplicationController.index())
+    val result = Redirect(Call("GET", "/"))
     silhouette.env.eventBus.publish(LogoutEvent(request.identity, request))
     silhouette.env.authenticatorService.discard(request.authenticator, result)
   }

@@ -29,7 +29,10 @@ libraryDependencies ++= Seq(
   "com.github.tototoshi" %% "slick-joda-mapper" % "2.2.0",
   "joda-time" % "joda-time" % "2.7",
   "org.joda" % "joda-convert" % "1.7",
+  "com.microsoft.azure" % "azure-storage" % "5.0.0",
+  "com.typesafe.akka" %% "akka-stream-kafka" % "0.14",
   specs2 % Test,
+  ws,
   cache,
   filters
 )
