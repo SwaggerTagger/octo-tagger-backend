@@ -5,17 +5,17 @@ import akka.actor._
 /**
   * Created by jlzie on 19.04.2017.
   */
-class ImageUploadActor  extends Actor{
+class TagImageActor  extends Actor{
 
-  import ImageUploadActor._
+  import TagImageActor._
 
   override def receive = {
-    case UploadedImage(file,mimetype) =>
+    case TagImage(file,mimetype) =>
 
   }
 }
 
-object ImageUploadActor {
-  def props = Props[ImageUploadActor]
-  case class UploadedImage(file:File,mimetype: String)
+object TagImageActor {
+  def props = Props[TagImageActor]
+  case class TagImage(file:File, mimetype: String)
 }
