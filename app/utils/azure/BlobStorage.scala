@@ -1,6 +1,6 @@
 package utils.azure
 
-import java.io.{File, FileInputStream}
+import java.io.{ File, FileInputStream }
 
 import com.google.inject.Inject
 
@@ -32,7 +32,11 @@ class BlobStorage @Inject() (configuration: play.api.Configuration) {
       // Retrieve reference to a previously created container.
       val container = blobClient.getContainerReference("pictures")
       val name = randomAlphanumericString(40)
-      val blob = container.getBlockBlobReference(name + ".jpg")
+      val extension = mimeType match {
+        case "image/jpeg" => ".jpg"
+        case "image/png" => ".png"
+      }
+      val blob = container.getBlockBlobReference(name + extension)
       blob.upload(new FileInputStream(file), file.length())
       blob.getProperties().setContentType(mimeType)
       blob.uploadProperties()
