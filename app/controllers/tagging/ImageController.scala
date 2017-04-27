@@ -3,9 +3,12 @@ package controllers.tagging
 import java.io.File
 import javax.inject.Inject
 
+import akka.actor.ActorSystem
 import com.mohiva.play.silhouette.api.{ HandlerResult, Silhouette }
 import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
 import controllers.WebJarAssets
+import models.TaggingImage
+import models.daos.ImageDAO
 import play.api.i18n.{ I18nSupport, MessagesApi }
 import play.api.libs.json.Json
 import play.api.mvc.{ Action, AnyContent, Controller, Request }
@@ -19,6 +22,7 @@ import scala.concurrent.Future
  */
 class ImageController @Inject() (
   blobStorage: BlobStorage,
+  imageDAO: ImageDAO,
   val messagesApi: MessagesApi,
   silhouette: Silhouette[DefaultEnv])
   extends Controller with I18nSupport {
@@ -35,10 +39,11 @@ class ImageController @Inject() (
 
     request.headers.get("X-Filename") match {
       case Some(f) => getImageMimeType(f) match {
-        case Some(t) => blobStorage.upload(request.body.file, t).map(url => {
+        case Some(t) => for {
+          (url, date) <- blobStorage.upload(request.body.file, t)
+          image <- imageDAO.create(url, date, request.identity.userID)
+        } yield Ok(Json.writes[TaggingImage].writes(image))
 
-          Ok(url)
-        })
         case _ => Future.successful(BadRequest("Unsupported file type"))
       }
       case _ => Future.successful(BadRequest("You must supply the filename/extension with the X-Filename header"))

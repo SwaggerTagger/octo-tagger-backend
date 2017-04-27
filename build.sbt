@@ -7,7 +7,7 @@ name := """play-silhouette-4.0-slick-postgres-seed"""
 
 version := "1.0.0"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.7"
 
 resolvers += Resolver.jcenterRepo
 
