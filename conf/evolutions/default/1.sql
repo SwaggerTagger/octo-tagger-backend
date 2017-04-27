@@ -28,7 +28,7 @@ CREATE TABLE user_login_info (
 );
 
 CREATE TABLE password_info (
-  user_id CHARACTER VARYING NOT NULL,
+  hasher CHARACTER VARYING NOT NULL,
   password CHARACTER VARYING NOT NULL,
   salt CHARACTER VARYING,
   login_info_id INTEGER NOT NULL

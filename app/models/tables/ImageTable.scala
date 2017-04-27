@@ -16,7 +16,7 @@ class ImageTable(tag: Tag) extends Table[TaggingImage](tag, "images") {
 
   def ownedBy: Rep[UUID] = column[UUID]("owned_by")
 
-  def classificationStart: Rep[Option[Timestamp]] = column[Option[Timestamp]]("classification_duration")
+  def classificationStart: Rep[Option[Timestamp]] = column[Option[Timestamp]]("classification_start")
 
   def classificationDuration: Rep[Option[Long]] = column[Option[Long]]("classification_duration")
 

@@ -12,6 +12,7 @@ import slick.driver.JdbcProfile
 import slick.jdbc.JdbcBackend
 import slick.lifted.TableQuery
 
+import scala.collection.LinearSeq
 import scala.concurrent.Future
 
 /**
@@ -21,6 +22,7 @@ class ImageDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProv
 
   val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]
   val db: JdbcBackend#DatabaseDef = dbConfig.db
+
   import dbConfig.driver.api._
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
   override def create(url: String, uploadDate: Date, userId: UUID): Future[TaggingImage] = {
@@ -29,6 +31,10 @@ class ImageDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProv
     db.run(ImageDAOImpl.images += image).map(result => image)
   }
 
+  override def listOwnImages(userId: UUID): Future[Seq[TaggingImage]] = {
+    val query = ImageDAOImpl.images.filter(_.ownedBy === userId).result
+    db.run(query)
+  }
 }
 
 object ImageDAOImpl {

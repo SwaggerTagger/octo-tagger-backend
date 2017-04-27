@@ -50,4 +50,8 @@ class ImageController @Inject() (
     }
 
   }
+  def listImages = silhouette.SecuredAction.async {
+
+    Future.successful(Ok("Test"))
+  }
 }
