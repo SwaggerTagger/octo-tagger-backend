@@ -5,7 +5,7 @@ import javax.inject.Inject
 
 import models.AuthToken
 import models.daos.AuthTokenDAOImpl._
-import models.tables.{ AuthTokenTable, DbAuthToken }
+import models.tables.AuthTokenTable
 import org.joda.time.DateTime
 import play.api.db.slick.DatabaseConfigProvider
 import slick.backend.DatabaseConfig
@@ -33,11 +33,7 @@ class AuthTokenDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfig
    * @return The found token or None if no token for the given ID could be found.
    */
   def find(id: UUID): Future[Option[AuthToken]] = {
-    db.run(tokens.filter(_.id === id.toString).result.headOption).map { resultOption =>
-      resultOption.map {
-        dbToken => AuthToken(UUID.fromString(dbToken.id), UUID.fromString(dbToken.userID), DateTime.parse(dbToken.expiry))
-      }
-    }
+    db.run(tokens.filter(_.id === id).result.headOption)
   }
 
   /**
@@ -49,7 +45,7 @@ class AuthTokenDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfig
   def save(token: AuthToken): Future[AuthToken] = {
     db.run((
       tokens returning tokens.map(_.id) into ((token, id) => token.copy(id))
-    ) += DbAuthToken(token.id.toString, token.userID.toString, token.expiry.toString)).map { _ =>
+    ) += AuthToken(token.id, token.userID, token.expiry)).map { _ =>
       token
     }
   }
@@ -61,7 +57,7 @@ class AuthTokenDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfig
    * @return A future to wait for the process to be completed.
    */
   def remove(id: UUID): Future[Int] = {
-    db.run(tokens.filter(_.id === id.toString).delete)
+    db.run(tokens.filter(_.id === id).delete)
   }
 }
 

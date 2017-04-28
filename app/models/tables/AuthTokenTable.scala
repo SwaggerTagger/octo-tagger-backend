@@ -1,23 +1,20 @@
 package models.tables
 
-import org.joda.time._
+import java.sql.Timestamp
+import java.util.UUID
+
+import models.AuthToken
 import slick.driver.PostgresDriver.api._
 import slick.lifted.ProvenShape
 
-case class DbAuthToken(
-  id: String,
-  userID: String,
-  expiry: String
-)
+class AuthTokenTable(tag: Tag) extends Table[AuthToken](tag, "auth_tokens") {
 
-class AuthTokenTable(tag: Tag) extends Table[DbAuthToken](tag, "auth_tokens") {
+  def id: Rep[UUID] = column[UUID]("id", O.PrimaryKey)
 
-  def id: Rep[String] = column[String]("id", O.PrimaryKey)
+  def userID: Rep[UUID] = column[UUID]("user_id")
 
-  def userID: Rep[String] = column[String]("user_id")
+  def expiry: Rep[Timestamp] = column[Timestamp]("expiry")
 
-  def expiry: Rep[String] = column[String]("expiry")
-
-  override def * : ProvenShape[DbAuthToken] = (id, userID, expiry) <> (DbAuthToken.tupled, DbAuthToken.unapply)
+  override def * : ProvenShape[AuthToken] = (id, userID, expiry) <> (AuthToken.tupled, AuthToken.unapply)
 
 }

@@ -83,6 +83,7 @@ class PasswordInfoDAO @Inject() (
   }
 
   def remove(loginInfo: LoginInfo): Future[Unit] = {
+
     db.run(passwordInfoQuery(loginInfo).delete).map(_ => Unit)
   }
 }

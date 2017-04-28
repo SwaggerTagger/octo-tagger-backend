@@ -1,7 +1,7 @@
 # --- !Ups
 
 CREATE TABLE users (
-  user_id CHARACTER VARYING NOT NULL PRIMARY KEY,
+  user_id UUID NOT NULL PRIMARY KEY,
   first_name CHARACTER VARYING,
   last_name CHARACTER VARYING,
   full_name CHARACTER VARYING,
@@ -11,8 +11,8 @@ CREATE TABLE users (
 );
 
 CREATE TABLE auth_tokens (
-  id CHARACTER VARYING PRIMARY KEY,
-  user_id CHARACTER VARYING NOT NULL,
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL,
   expiry CHARACTER VARYING
 );
 
@@ -23,12 +23,12 @@ CREATE TABLE login_info (
 );
 
 CREATE TABLE user_login_info (
-  user_id CHARACTER VARYING NOT NULL,
+  user_id UUID NOT NULL,
   login_info_id INTEGER NOT NULL
 );
 
 CREATE TABLE password_info (
-  user_id CHARACTER VARYING NOT NULL,
+  hasher CHARACTER VARYING NOT NULL,
   password CHARACTER VARYING NOT NULL,
   salt CHARACTER VARYING,
   login_info_id INTEGER NOT NULL

@@ -45,7 +45,7 @@ class UserDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
 
     db.run(userQuery.result.headOption).map { dbUserOption =>
       dbUserOption.map {
-        user => User(UUID.fromString(user.userID), loginInfo, user.firstName, user.lastName, user.fullName, user.email, user.avatarUrl, user.activated)
+        user => User(user.userID, loginInfo, user.firstName, user.lastName, user.fullName, user.email, user.avatarUrl, user.activated)
       }
     }
   }
@@ -59,7 +59,7 @@ class UserDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
   def find(userID: UUID): Future[Option[User]] = {
     {
       val userQuery = for {
-        dbUser <- users.filter(_.userID === userID.toString)
+        dbUser <- users.filter(_.userID === userID)
         dbUserLoginInfo <- userLoginInfos.filter(_.userId === dbUser.userID)
         dbLoginInfo <- loginInfos.filter(_.id === dbUserLoginInfo.loginInfoId)
       } yield (dbUser, dbLoginInfo)
@@ -67,7 +67,7 @@ class UserDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       db.run(userQuery.result.headOption).map { resultOption =>
         resultOption.map {
           case (user, loginInfo) => User(
-            UUID.fromString(user.userID),
+            user.userID,
             LoginInfo(loginInfo.providerId, loginInfo.providerKey),
             user.firstName,
             user.lastName,
@@ -88,7 +88,7 @@ class UserDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
    * @return The saved user.
    */
   def save(user: User): Future[User] = {
-    val dbUser = DbUser(user.userID.toString, user.firstName, user.lastName, user.fullName, user.email, user.avatarURL, user.activated)
+    val dbUser = DbUser(user.userID, user.firstName, user.lastName, user.fullName, user.email, user.avatarURL, user.activated)
     val dbLoginInfo = DbLoginInfo(None, user.loginInfo.providerID, user.loginInfo.providerKey)
 
     val loginInfoAction = {
