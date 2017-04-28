@@ -54,7 +54,11 @@ class ImageController @Inject() (
   def listImages = silhouette.SecuredAction.async { request =>
     imageDAO.listOwnImages(request.identity.userID).map(images => Ok(Json.toJson(images).toString()))
   }
+  
   def deleteImage(imageId: UUID) = silhouette.SecuredAction.async { request =>
-    imageDAO.delete(imageId, request.identity.userID).map(_ => Ok)
+    for {
+      url <- imageDAO.delete(imageId, request.identity.userID)
+      _ <- blobStorage.delete(url)
+    } yield Ok
   }
 }

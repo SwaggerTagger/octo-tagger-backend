@@ -38,20 +38,20 @@ class ImageDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProv
     db.run(query)
   }
 
-  override def delete(imageId: UUID, userId: UUID): Future[Boolean] = {
-    val query = ImageDAOImpl.images.filter(_.imageId === imageId).map(_.ownedBy === userId).result.headOption
+  override def delete(imageId: UUID, userId: UUID): Future[String] = {
+    val query = ImageDAOImpl.images.filter(_.imageId === imageId).map(image => (image.ownedBy === userId, image.url)).result.headOption
     for {
-      isOwned <- db.run(query)
-      _ <- isOwned match {
-        case Some(m) => m match {
-          case true => db.run(ImageDAOImpl.images.filter(_.imageId === imageId).delete)
+      returnvalue: Option[(Boolean, String)] <- db.run(query)
+      url <- returnvalue match {
+        case Some((isOwned, url)) => isOwned match {
+          case true => {
+            db.run(ImageDAOImpl.images.filter(_.imageId === imageId).delete).map(_ => url)
+          }
           case false => throw HttpError(play.api.mvc.Results.Forbidden("You do not own this image"))
         }
         case None => throw HttpError(NotFound)
       }
-
-    } yield true
-
+    } yield url
   }
 }
 
