@@ -1,13 +1,12 @@
 # --- !Ups
 
 CREATE TABLE images (
-  image_id CHARACTER VARYING NOT NULL PRIMARY KEY,
+  image_id UUID NOT NULL PRIMARY KEY,
   url CHARACTER VARYING NOT NULL,
   uploaded_at timestamp NOT NULL,
-  owned_by character VARYING NOT NULL,
+  owned_by UUID NOT NULL,
   classification_start timestamp,
-  classification_duration BIGINT,
-  FOREIGN KEY(owned_by) REFERENCES users(user_id)
+  classification_duration BIGINT
 );
 # --- !Downs
 DROP TABLE images;

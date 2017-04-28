@@ -1,10 +1,12 @@
 package models.tables
 
+import java.util.UUID
+
 import slick.driver.PostgresDriver.api._
 import slick.lifted.ProvenShape
 
 case class DbUser(
-  userID: String,
+  userID: UUID,
   firstName: Option[String],
   lastName: Option[String],
   fullName: Option[String],
@@ -20,7 +22,7 @@ case class DbLoginInfo(
 )
 
 case class DbUserLoginInfo(
-  userId: String,
+  userId: UUID,
   loginInfoId: Long
 )
 
@@ -60,7 +62,7 @@ case class DbOpenIDAttribute(
 
 class UserTable(tag: Tag) extends Table[DbUser](tag, "users") {
 
-  def userID: Rep[String] = column[String]("user_id", O.PrimaryKey)
+  def userID: Rep[UUID] = column[UUID]("user_id", O.PrimaryKey)
 
   def firstName: Rep[Option[String]] = column[Option[String]]("first_name")
 
@@ -92,7 +94,7 @@ class LoginInfoTable(tag: Tag) extends Table[DbLoginInfo](tag, "login_info") {
 
 class UserLoginInfoTable(tag: Tag) extends Table[DbUserLoginInfo](tag, "user_login_info") {
 
-  def userId: Rep[String] = column[String]("user_id")
+  def userId: Rep[UUID] = column[UUID]("user_id")
 
   def loginInfoId: Rep[Long] = column[Long]("login_info_id")
 
