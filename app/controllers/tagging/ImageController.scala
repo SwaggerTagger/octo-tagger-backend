@@ -1,6 +1,7 @@
 package controllers.tagging
 
 import java.io.File
+import java.util.UUID
 import javax.inject.Inject
 
 import akka.actor.ActorSystem
@@ -8,7 +9,7 @@ import com.mohiva.play.silhouette.api.{ HandlerResult, Silhouette }
 import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
 import controllers.WebJarAssets
 import models.TaggingImage
-import models.daos.ImageDAO
+import models.daos.{ ImageDAO, ImageDAOImpl }
 import play.api.i18n.{ I18nSupport, MessagesApi }
 import play.api.libs.json.Json
 import play.api.mvc.{ Action, AnyContent, Controller, Request }
@@ -27,7 +28,7 @@ class ImageController @Inject() (
   silhouette: Silhouette[DefaultEnv])
   extends Controller with I18nSupport {
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
-
+  import models.formatters.JsonFormats._
   def getImageMimeType(filename: String) = filename.toLowerCase match {
     case n if (n.endsWith(".jpeg") || n.endsWith(".jpg")) => Some("image/jpeg")
     case n if n.endsWith(".png") => Some("image/png")
@@ -50,8 +51,10 @@ class ImageController @Inject() (
     }
 
   }
-  def listImages = silhouette.SecuredAction.async {
-
-    Future.successful(Ok("Test"))
+  def listImages = silhouette.SecuredAction.async { request =>
+    imageDAO.listOwnImages(request.identity.userID).map(images => Ok(Json.toJson(images).toString()))
+  }
+  def deleteImage(imageId: UUID) = silhouette.SecuredAction.async { request =>
+    imageDAO.delete(imageId, request.identity.userID).map(_ => Ok)
   }
 }

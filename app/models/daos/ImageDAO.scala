@@ -12,4 +12,5 @@ import scala.concurrent.Future
 trait ImageDAO {
   def create(url: String, uploadDate: Date, userId: UUID): Future[TaggingImage]
   def listOwnImages(userId: UUID): Future[Seq[TaggingImage]]
+  def delete(imageId: UUID, userId: UUID): Future[Boolean]
 }
