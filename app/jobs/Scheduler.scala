@@ -3,16 +3,17 @@ package jobs
 import akka.actor.{ ActorRef, ActorSystem }
 import com.google.inject.Inject
 import com.google.inject.name.Named
-import com.typesafe.akka.extension.quartz.QuartzSchedulerExtension
+import scala.concurrent.duration._
 
 /**
  * Schedules the jobs.
  */
 class Scheduler @Inject() (
   system: ActorSystem,
-  @Named("auth-token-cleaner") authTokenCleaner: ActorRef) {
+  @Named("kafka-job") kafkaJob: ActorRef) {
+  import scala.concurrent.ExecutionContext.Implicits.global
 
-  QuartzSchedulerExtension(system).schedule("AuthTokenCleaner", authTokenCleaner, AuthTokenCleaner.Clean)
-
-  authTokenCleaner ! AuthTokenCleaner.Clean
+  system.scheduler.scheduleOnce(50.milliseconds) {
+    kafkaJob ! KafkaJob.OnStart
+  }
 }

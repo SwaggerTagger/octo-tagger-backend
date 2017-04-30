@@ -1,6 +1,7 @@
 package modules
 
-import jobs.{ AuthTokenCleaner, Scheduler }
+import jobs.{ AuthTokenCleaner, KafkaJob, Scheduler }
+import models.services.{ Kafka, KafkaImpl }
 import net.codingwell.scalaguice.ScalaModule
 import play.api.libs.concurrent.AkkaGuiceSupport
 
@@ -13,7 +14,8 @@ class JobModule extends ScalaModule with AkkaGuiceSupport {
    * Configures the module.
    */
   def configure() = {
-    //    bindActor[AuthTokenCleaner]("auth-token-cleaner")
-    //    bind[Scheduler].asEagerSingleton()
+    bindActor[KafkaJob]("kafka-job")
+    bind(classOf[Kafka]).to(classOf[KafkaImpl])
+    bind[Scheduler].asEagerSingleton()
   }
 }
