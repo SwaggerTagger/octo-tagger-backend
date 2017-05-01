@@ -15,9 +15,10 @@ import slick.lifted.TableQuery
 import utils.exceptions.HttpError
 
 import scala.concurrent.Future
-/**
- * Created by jlzie on 26.04.2017.
- */
+import scala.concurrent.{ Await, Future }
+import scala.concurrent.duration._
+import play.api.mvc.Results._
+
 class ImageDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProvider) extends ImageDAO {
 
   val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]

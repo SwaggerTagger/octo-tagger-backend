@@ -29,7 +29,7 @@ class KafkaImpl @Inject() (configuration: Configuration) extends Kafka {
     configuration.getString("kafka.url").fold[Try[K]] {
       Failure(new Error("kafka.url was not set"))
     } { kafkaUrl =>
-      Logger.info("Got this Kafka Url:" + kafkaUrl)
+      Logger.info("Got this Kafka Url: " + kafkaUrl)
       Success(f(kafkaUrl))
     }
   }

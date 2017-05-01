@@ -4,8 +4,15 @@ import java.util.UUID
 import javax.inject.Inject
 
 import akka.actor._
+import akka.pattern.pipe
+import models.TaggingImage
 import models.daos.ImageDAO
+import play.Logger
 import utils.azure.BlobStorage
+
+import scala.concurrent.{ Await, ExecutionContext }
+import scala.concurrent.duration._
+import scala.concurrent._
 
 class TagImageActor @Inject() (
   blobStorage: BlobStorage, imageDAO: ImageDAO) extends Actor {
@@ -15,11 +22,10 @@ class TagImageActor @Inject() (
 
   override def receive = {
     case TagImage(file, mimetype, user) =>
-      for {
-        (url, date) <- blobStorage.upload(file, mimetype)
-        image <- imageDAO.create(url, date, user)
-      } yield image;
-
+      Future {
+        val (url, date) = Await.result(blobStorage.upload(file, mimetype), 10.seconds)
+        Await.result(imageDAO.create(url, date, user), 10.seconds)
+      }(ExecutionContext.Implicits.global) pipeTo sender
   }
 }
 
