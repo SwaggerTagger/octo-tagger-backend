@@ -7,16 +7,14 @@ import javax.inject.Inject
 import models.TaggingImage
 import models.tables.ImageTable
 import play.api.db.slick.DatabaseConfigProvider
+import play.api.mvc.Results._
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
 import slick.jdbc.JdbcBackend
 import slick.lifted.TableQuery
 import utils.exceptions.HttpError
 
-import scala.collection.LinearSeq
-import scala.concurrent.{ Await, Future }
-import scala.concurrent.duration._
-import play.api.mvc.Results._
+import scala.concurrent.Future
 /**
  * Created by jlzie on 26.04.2017.
  */
@@ -52,6 +50,16 @@ class ImageDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProv
         case None => throw HttpError(NotFound)
       }
     } yield url
+  }
+
+  override def setClassificationStart(imageId: UUID, date: Date): Future[Int] = {
+    val query = (for { c <- ImageDAOImpl.images if c.imageId === imageId } yield c.classificationStart).update(Some(Timestamp.from(date.toInstant)))
+    db.run(query)
+  }
+
+  override def setClassificationDuration(imageId: UUID, classificationDuration: Long): Future[Int] = {
+    val query = (for { c <- ImageDAOImpl.images if c.imageId === imageId } yield c.classificationDuration).update(Some(classificationDuration))
+    db.run(query)
   }
 }
 
