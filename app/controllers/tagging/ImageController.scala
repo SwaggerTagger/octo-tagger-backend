@@ -56,7 +56,7 @@ class ImageController @Inject() (
           val result = (tagImageActor ?
             TagImageActor.TagImage(request.body.file, mimeType, request.identity.userID)).mapTo[TaggingImage]
 
-          val resolved = Await.result(result, 10.seconds)
+          val resolved = Await.result(result, 60.seconds)
 
           kafkaWriteActor ! KafkaWriteActor.QueuePrediction(resolved)
           Future.successful(Ok(Json.writes[TaggingImage].writes(resolved)))

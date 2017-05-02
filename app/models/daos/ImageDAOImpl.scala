@@ -16,7 +16,6 @@ import utils.exceptions.HttpError
 
 import scala.concurrent.Future
 import scala.concurrent.{ Await, Future }
-import scala.concurrent.duration._
 import play.api.mvc.Results._
 
 class ImageDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProvider) extends ImageDAO {

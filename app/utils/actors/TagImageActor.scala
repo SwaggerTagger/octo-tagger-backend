@@ -5,9 +5,7 @@ import javax.inject.Inject
 
 import akka.actor._
 import akka.pattern.pipe
-import models.TaggingImage
 import models.daos.ImageDAO
-import play.Logger
 import utils.azure.BlobStorage
 
 import scala.concurrent.{ Await, ExecutionContext }
@@ -23,7 +21,7 @@ class TagImageActor @Inject() (
   override def receive = {
     case TagImage(file, mimetype, user) =>
       Future {
-        val (url, date) = Await.result(blobStorage.upload(file, mimetype), 10.seconds)
+        val (url, date) = Await.result(blobStorage.upload(file, mimetype), 50.seconds)
         Await.result(imageDAO.create(url, date, user), 10.seconds)
       }(ExecutionContext.Implicits.global) pipeTo sender
   }

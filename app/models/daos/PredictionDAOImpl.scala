@@ -7,13 +7,10 @@ import javax.inject.Inject
 import models.{ Prediction, TaggingImage }
 import models.tables.PredictionTable
 import play.api.db.slick.DatabaseConfigProvider
-import play.api.libs.openid.Errors.AUTH_CANCEL
-import play.api.mvc.Results.NotFound
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
 import slick.jdbc.JdbcBackend
 import slick.lifted.TableQuery
-import utils.exceptions.HttpError
 
 import scala.concurrent.Future
 
@@ -29,7 +26,7 @@ class PredictionDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfi
   import PredictionDAOImpl._
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
   override def create(predictions: Seq[Prediction]): Future[Seq[Prediction]] = {
-    val query = (predictionsTable.returning(predictionsTable.map(_.predictionId)).into((prediction, id) => prediction.copy(predictionId = id))) ++= predictions
+    val query = predictionsTable.returning(predictionsTable.map(_.predictionId)).into((prediction, id) => prediction.copy(predictionId = id)) ++= predictions
     db.run(query).map(_.seq)
   }
 
