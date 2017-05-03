@@ -21,8 +21,9 @@ class TagImageActor @Inject() (
   override def receive = {
     case TagImage(file, mimetype, user) =>
       Future {
+        val (height, width) = Await.result(utils.images.ImageHelper.getImageDimensions(file), 10.seconds)
         val (url, date) = Await.result(blobStorage.upload(file, mimetype), 50.seconds)
-        Await.result(imageDAO.create(url, date, user), 10.seconds)
+        Await.result(imageDAO.create(url, date, user, height, width), 10.seconds)
       }(ExecutionContext.Implicits.global) pipeTo sender
   }
 }

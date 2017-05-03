@@ -43,14 +43,6 @@ class ImageController @Inject() (
 
   def uploadImage = silhouette.SecuredAction.async(parse.temporaryFile) { request =>
     request.headers.get("X-Filename") match {
-<<<<<<< HEAD
-      case Some(f) => getImageMimeType(f) match {
-        case Some(t) => for {
-          (height, width) <- utils.images.ImageHelper.getImageDimensions(request.body.file)
-          (url, date) <- blobStorage.upload(request.body.file, t)
-          image <- imageDAO.create(url, date, request.identity.userID, height, width)
-        } yield Ok(Json.writes[TaggingImage].writes(image))
-=======
       case Some(fileName) => getImageMimeType(fileName) match {
         case Some(mimeType) =>
           val result = (tagImageActor ?
@@ -60,7 +52,6 @@ class ImageController @Inject() (
 
           kafkaWriteActor ! KafkaWriteActor.QueuePrediction(resolved)
           Future.successful(Ok(Json.writes[TaggingImage].writes(resolved)))
->>>>>>> Refactor ImageController to use Akka Actors; Connect ImageController to KafkaWriteActor
 
         case _ => Future.successful(BadRequest("Unsupported file type"))
       }
