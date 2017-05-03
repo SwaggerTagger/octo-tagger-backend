@@ -6,7 +6,9 @@ CREATE TABLE images (
   uploaded_at timestamp NOT NULL,
   owned_by UUID NOT NULL,
   classification_start timestamp,
-  classification_duration BIGINT
+  classification_duration BIGINT,
+  height INTEGER NOT NULL,
+  width INTEGER NOT NULL
 );
 # --- !Downs
 DROP TABLE images;

@@ -5,11 +5,11 @@ import javax.inject.Inject
 
 import akka.util.ByteString
 import com.mohiva.play.silhouette.api.Silhouette
-import models.daos.{ImageDAO, PredictionDAO}
-import models.{Prediction, TaggingImage}
+import models.daos.{ ImageDAO, PredictionDAO }
+import models.{ Prediction, TaggingImage }
 import play.api.http.Writeable
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{JsValue, Json}
+import play.api.i18n.{ I18nSupport, MessagesApi }
+import play.api.libs.json.{ JsValue, Json }
 import play.api.mvc._
 import utils.auth.DefaultEnv
 import utils.azure.BlobStorage
@@ -39,8 +39,9 @@ class ImageController @Inject() (
     request.headers.get("X-Filename") match {
       case Some(f) => getImageMimeType(f) match {
         case Some(t) => for {
+          (height, width) <- utils.images.ImageHelper.getImageDimensions(request.body.file)
           (url, date) <- blobStorage.upload(request.body.file, t)
-          image <- imageDAO.create(url, date, request.identity.userID)
+          image <- imageDAO.create(url, date, request.identity.userID, height, width)
         } yield Ok(Json.writes[TaggingImage].writes(image))
 
         case _ => Future.successful(BadRequest("Unsupported file type"))
