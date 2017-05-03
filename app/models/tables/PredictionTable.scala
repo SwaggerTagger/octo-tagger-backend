@@ -13,7 +13,7 @@ import slick.lifted.ProvenShape
 class PredictionTable(tag: Tag) extends Table[Prediction](tag, "predictions") {
   def imageId: Rep[UUID] = column[UUID]("image_id", O.PrimaryKey)
 
-  def predictionId: Rep[Int] = column[Int]("prediction_id", O.PrimaryKey)
+  def predictionId: Rep[Int] = column[Int]("prediction_id", O.PrimaryKey, O.AutoInc)
 
   def category: Rep[String] = column[String]("category")
   def probability: Rep[Double] = column[Double]("probability")

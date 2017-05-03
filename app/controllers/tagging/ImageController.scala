@@ -3,7 +3,9 @@ package controllers.tagging
 import java.util.UUID
 import javax.inject.Inject
 
-import akka.util.ByteString
+import akka.actor.ActorRef
+import akka.util.{ ByteString, Timeout }
+import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
 import models.daos.{ ImageDAO, PredictionDAO }
 import models.{ Prediction, TaggingImage }
@@ -11,18 +13,20 @@ import play.api.http.Writeable
 import play.api.i18n.{ I18nSupport, MessagesApi }
 import play.api.libs.json.{ JsValue, Json }
 import play.api.mvc._
+import akka.pattern.ask
+import utils.actors.{ KafkaWriteActor, TagImageActor }
 import utils.auth.DefaultEnv
 import utils.azure.BlobStorage
 import utils.json.JsonFormats
 
-import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.concurrent.{ Await, Future }
 
-/**
- * Created by jlzie on 14.04.2017.
- */
 class ImageController @Inject() (
   blobStorage: BlobStorage,
   imageDAO: ImageDAO,
+  @Named("tag-image-actor") tagImageActor: ActorRef,
+  @Named("kafka-write-actor") kafkaWriteActor: ActorRef,
   predictionDAO: PredictionDAO,
   val messagesApi: MessagesApi,
   silhouette: Silhouette[DefaultEnv])
@@ -33,16 +37,21 @@ class ImageController @Inject() (
     case n if n.endsWith(".png") => Some("image/png")
     case _ => None
   }
+
   implicit val jsonPrettyWritable = new Writeable[JsValue]((value) => ByteString(Json.prettyPrint(value)), Some("application/json"))
+  implicit val timeout = Timeout(30.seconds)
 
   def uploadImage = silhouette.SecuredAction.async(parse.temporaryFile) { request =>
     request.headers.get("X-Filename") match {
-      case Some(f) => getImageMimeType(f) match {
-        case Some(t) => for {
-          (height, width) <- utils.images.ImageHelper.getImageDimensions(request.body.file)
-          (url, date) <- blobStorage.upload(request.body.file, t)
-          image <- imageDAO.create(url, date, request.identity.userID, height, width)
-        } yield Ok(Json.writes[TaggingImage].writes(image))
+      case Some(fileName) => getImageMimeType(fileName) match {
+        case Some(mimeType) =>
+          val result = (tagImageActor ?
+            TagImageActor.TagImage(request.body.file, mimeType, request.identity.userID)).mapTo[TaggingImage]
+
+          val resolved = Await.result(result, 60.seconds)
+
+          kafkaWriteActor ! KafkaWriteActor.QueuePrediction(resolved)
+          Future.successful(Ok(Json.writes[TaggingImage].writes(resolved)))
 
         case _ => Future.successful(BadRequest("Unsupported file type"))
       }

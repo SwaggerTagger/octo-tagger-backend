@@ -2,8 +2,10 @@ package utils.azure
 
 import java.io.{ File, FileInputStream }
 import java.util.Date
+
 import com.microsoft.azure.storage.CloudStorageAccount
 import com.google.inject.Inject
+import play.Logger
 
 import scala.concurrent.Future
 
@@ -38,7 +40,6 @@ class BlobStorage @Inject() (configuration: play.api.Configuration) {
     }
   }
   def upload(file: File, mimeType: String): Future[(String, Date)] = scala.concurrent.Future[(String, Date)] {
-
     try { // Retrieve storage account from connection-string.
       // Create the blob client.
       val blobClient = storageAccount.createCloudBlobClient
