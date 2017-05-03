@@ -27,11 +27,11 @@ object JsonFormats {
       override def writes(o: Prediction): JsValue = Json.format[Prediction].writes(o) - ("imageId")
     }
 
-    val predictionMap = Map[UUID, List[Prediction]]()
+    val predictionMap = scala.collection.mutable.HashMap.empty[UUID, scala.collection.mutable.MutableList[Prediction]]
     predicitions.foreach(prediction => {
       predictionMap.get(prediction.imageId) match {
-        case Some(list: List[Prediction]) => list.::(prediction)
-        case None => predictionMap + ((prediction.imageId, List(prediction)))
+        case Some(list: scala.collection.mutable.MutableList[Prediction]) => list.+=(prediction)
+        case _ => predictionMap += ((prediction.imageId, scala.collection.mutable.MutableList(prediction)))
       }
     })
     val imagesJson = images.map(image => {
