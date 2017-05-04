@@ -15,4 +15,5 @@ trait ImageDAO {
   def delete(imageId: UUID, userId: UUID): Future[String]
   def setClassificationStart(imageId: UUID, date: Date): Future[Int]
   def setClassificationDuration(imageId: UUID, classificationDuration: Long): Future[Int]
+  def setStatus(imageId: UUID, status: Option[String]): Future[Int]
 }
