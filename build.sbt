@@ -3,7 +3,7 @@ import sbt.Resolver
 
 import scalariform.formatter.preferences._
 
-name := """play-silhouette-4.0-slick-postgres-seed"""
+name := """tagger-backend"""
 
 version := "1.0.0"
 
@@ -35,7 +35,16 @@ libraryDependencies ++= Seq(
   filters
 )
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+lazy val root = (project in file("."))
+  .enablePlugins(PlayScala)
+  .enablePlugins(DockerPlugin)
+
+javaOptions in Universal ++= Seq(
+  "-J-Xmx1024m",
+  "-J-Xms512m",
+  "-Dconfig.file=/opt/docker/conf/application.prod.conf",
+  "-Dplay.evolutions.db.default.autoApply=true"
+)
 
 routesGenerator := InjectedRoutesGenerator
 
