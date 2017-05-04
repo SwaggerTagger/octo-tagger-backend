@@ -39,4 +39,5 @@ trait UserDAO {
    * @return The saved user.
    */
   def save(user: User): Future[User]
+
 }

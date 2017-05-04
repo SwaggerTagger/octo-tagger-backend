@@ -61,6 +61,11 @@ class ImageDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProv
     val query = (for { c <- ImageDAOImpl.images if c.imageId === imageId } yield c.classificationDuration).update(Some(classificationDuration))
     db.run(query)
   }
+
+  override def setStatus(imageId: UUID, status: Option[String]): Future[Int] = {
+    val query = (for { c <- ImageDAOImpl.images if c.imageId === imageId } yield c.status).update(status)
+    db.run(query)
+  }
 }
 
 object ImageDAOImpl {

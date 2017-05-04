@@ -24,5 +24,6 @@ class ImageTable(tag: Tag) extends Table[TaggingImage](tag, "images") {
 
   def width: Rep[Int] = column[Int]("width")
 
-  override def * : ProvenShape[TaggingImage] = (imageId, url, uploadedAt, ownedBy, height, width, classificationStart, classificationDuration) <> (TaggingImage.tupled, TaggingImage.unapply)
+  def status: Rep[Option[String]] = column[Option[String]]("status")
+  override def * : ProvenShape[TaggingImage] = (imageId, url, uploadedAt, ownedBy, height, width, classificationStart, classificationDuration, status) <> (TaggingImage.tupled, TaggingImage.unapply)
 }

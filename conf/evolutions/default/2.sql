@@ -8,7 +8,8 @@ CREATE TABLE images (
   classification_start timestamp,
   classification_duration BIGINT,
   height INTEGER NOT NULL,
-  width INTEGER NOT NULL
+  width INTEGER NOT NULL,
+  status CHARACTER VARYING
 );
 # --- !Downs
 DROP TABLE images;
