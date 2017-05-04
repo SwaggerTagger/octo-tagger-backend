@@ -41,12 +41,12 @@ class ImageController @Inject() (
   implicit val jsonPrettyWritable = new Writeable[JsValue]((value) => ByteString(Json.prettyPrint(value)), Some("application/json"))
   implicit val timeout = Timeout(30.seconds)
 
-  def uploadImage = silhouette.SecuredAction.async(parse.temporaryFile) { request =>
-    request.headers.get("X-Filename") match {
-      case Some(fileName) => getImageMimeType(fileName) match {
+  def uploadImage = silhouette.SecuredAction.async(parse.multipartFormData) { request =>
+    request.body.file("picture") match {
+      case Some(file) => getImageMimeType(file.filename) match {
         case Some(mimeType) =>
           val result = (tagImageActor ?
-            TagImageActor.TagImage(request.body.file, mimeType, request.identity.userID)).mapTo[TaggingImage]
+            TagImageActor.TagImage(file.ref.file, mimeType, request.identity.userID)).mapTo[TaggingImage]
 
           val resolved = Await.result(result, 60.seconds)
 
