@@ -1,6 +1,6 @@
 package jobs
 
-import java.util.UUID
+import java.util.{ Date, UUID }
 
 import akka.actor.Actor
 import akka.stream.ActorMaterializer
@@ -27,6 +27,29 @@ class KafkaJob @Inject() (
   override def receive: Receive = {
     case OnStart =>
       Logger.info("KafkaJob: Starting")
+
+      kafka.source("classification-status") match {
+        case Failure(e) =>
+          Logger.info(s"Could not connect to Kafka! Error: $e")
+        case Success(source) =>
+          source.runForeach(x => {
+            Logger.info(s"Received Status Update from Kafka: ${x.toString}")
+            val json = Json.parse(x.value())
+
+            (json \ "status").asOpt[String] match {
+              case Some("CLASSIFICATION_STARTING") =>
+                for {
+                  status <- imageDAO.setClassificationStart(UUID.fromString(x.key()), new Date)
+                } yield sender() ! true
+
+              case Some(other) =>
+                Logger.info(s"Got message from Kafka that is unhandled: $other")
+
+              case None =>
+                Logger.warn(s"Invalid Message from Kafka: ${x.value()}")
+            }
+          })
+      }
 
       kafka.source("predictions") match {
         case Failure(e) =>

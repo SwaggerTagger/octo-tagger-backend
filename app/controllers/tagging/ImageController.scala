@@ -64,7 +64,6 @@ class ImageController @Inject() (
       images: Seq[TaggingImage] <- imageDAO.listOwnImages(request.identity.userID)
       predictions: Seq[Prediction] <- predictionDAO.getPredictions(images.map(_.imageId))
     } yield Ok(JsonFormats.writeImageswithPredicitions(images, predictions))
-    //imageDAO.listOwnImages(request.identity.userID).map(images => Ok(Json.toJson(images).toString()))
   }
 
   def deleteImage(imageId: UUID) = silhouette.SecuredAction.async { request =>
