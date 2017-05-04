@@ -40,10 +40,12 @@ class KafkaJob @Inject() (
               case Some("CLASSIFICATION_STARTING") =>
                 for {
                   status <- imageDAO.setClassificationStart(UUID.fromString(x.key()), new Date)
-                } yield sender() ! true
+                } yield sender ! status
 
               case Some(other) =>
-                Logger.info(s"Got message from Kafka that is unhandled: $other")
+                for {
+                  status <- imageDAO.setStatus(UUID.fromString(x.key()), Some(other))
+                } yield sender ! status
 
               case None =>
                 Logger.warn(s"Invalid Message from Kafka: ${x.value()}")
