@@ -5,6 +5,7 @@ import java.util.UUID
 
 import models.{ Prediction, TaggingImage }
 import play.api.libs.json._
+import play.api.mvc.{ BodyParser, BodyParsers }
 
 /**
  * Created by jlzie on 28.04.2017.
@@ -44,4 +45,8 @@ object JsonFormats {
     }).seq
     Json.toJson(imagesJson)
   }
+  import play.api.libs.concurrent.Execution.Implicits.defaultContext
+  def validateJson[A: Reads]: BodyParser[A] = BodyParsers.parse.json.validate(
+    _.validate[A].asEither.left.map(e => play.api.mvc.Results.BadRequest(JsError.toJson(e)))
+  )
 }

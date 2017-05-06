@@ -27,15 +27,6 @@ class ApplicationController @Inject() (
   extends Controller with I18nSupport {
 
   /**
-   * Handles the index action.
-   *
-   * @return The result to display.
-   */
-  def index: Action[AnyContent] = silhouette.SecuredAction.async { implicit request =>
-    Future.successful(Ok(views.html.home(request.identity)))
-  }
-
-  /**
    * Handles the Sign Out action.
    *
    * @return The result to display.

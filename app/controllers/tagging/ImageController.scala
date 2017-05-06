@@ -51,7 +51,7 @@ class ImageController @Inject() (
           val resolved = Await.result(result, 60.seconds)
 
           kafkaWriteActor ! KafkaWriteActor.QueuePrediction(resolved)
-          Future.successful(Ok(Json.writes[TaggingImage].writes(resolved)))
+          Future.successful(Created(Json.writes[TaggingImage].writes(resolved)))
 
         case _ => Future.successful(BadRequest("Unsupported file type"))
       }

@@ -10,6 +10,7 @@ import controllers.{ WebJarAssets, auth, pages }
 import models.services.UserService
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.json.Json
 import play.api.mvc.{ Action, AnyContent, Controller }
 import utils.auth.DefaultEnv
 
@@ -51,7 +52,7 @@ class SocialAuthController @Inject() (
             authInfo <- authInfoRepository.save(profile.loginInfo, authInfo)
             authenticator <- silhouette.env.authenticatorService.create(profile.loginInfo)
             value <- silhouette.env.authenticatorService.init(authenticator)
-            result <- silhouette.env.authenticatorService.embed(value, Redirect(pages.routes.ApplicationController.index()))
+            result <- silhouette.env.authenticatorService.embed(value, Redirect("/"))
           } yield {
             silhouette.env.eventBus.publish(LoginEvent(user, request))
             result
@@ -61,7 +62,7 @@ class SocialAuthController @Inject() (
     }).recover {
       case e: ProviderException =>
         logger.error("Unexpected provider error", e)
-        Redirect(auth.routes.SignInController.view()).flashing("error" -> Messages("could.not.authenticate"))
+        Unauthorized(Json.obj("error" -> Messages("could.not.authenticate")))
     }
   }
 }

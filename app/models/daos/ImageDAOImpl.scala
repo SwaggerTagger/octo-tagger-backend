@@ -7,6 +7,7 @@ import javax.inject.Inject
 import models.TaggingImage
 import models.tables.ImageTable
 import play.api.db.slick.DatabaseConfigProvider
+import play.api.libs.json.Json
 import play.api.mvc.Results._
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
@@ -45,7 +46,7 @@ class ImageDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProv
           case true => {
             db.run(ImageDAOImpl.images.filter(_.imageId === imageId).delete).map(_ => url)
           }
-          case false => throw HttpError(play.api.mvc.Results.Forbidden("You do not own this image"))
+          case false => throw HttpError(play.api.mvc.Results.Forbidden(Json.obj("error" -> "You do not own this image")))
         }
         case None => throw HttpError(NotFound)
       }
