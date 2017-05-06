@@ -70,6 +70,6 @@ class ImageController @Inject() (
     for {
       url <- imageDAO.delete(imageId, request.identity.userID)
       _ <- blobStorage.delete(url)
-    } yield Ok
+    } yield NoContent
   }
 }
