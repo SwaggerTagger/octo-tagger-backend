@@ -8,15 +8,14 @@ import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.services.AvatarService
 import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
 import com.mohiva.play.silhouette.impl.providers._
-import controllers.{ WebJarAssets, auth }
+import controllers.auth
 import models.User
 import models.services.{ AuthTokenService, UserService }
-import play.api.data
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
 import play.api.libs.mailer.{ Email, MailerClient }
-import play.api.mvc.{ Action, AnyContent, Controller, Request }
+import play.api.mvc.Controller
 import utils.auth.DefaultEnv
 import utils.json.JsonFormats
 import utils.route.UrlResolver
@@ -34,7 +33,6 @@ import scala.concurrent.Future
  * @param avatarService          The avatar service implementation.
  * @param passwordHasherRegistry The password hasher registry.
  * @param mailerClient           The mailer client.
- * @param webJarAssets           The webjar assets implementation.
  */
 class SignUpController @Inject() (
   val messagesApi: MessagesApi,
@@ -44,8 +42,7 @@ class SignUpController @Inject() (
   authTokenService: AuthTokenService,
   avatarService: AvatarService,
   passwordHasherRegistry: PasswordHasherRegistry,
-  mailerClient: MailerClient,
-  implicit val webJarAssets: WebJarAssets)
+  mailerClient: MailerClient)
   extends Controller with I18nSupport {
   case class SignUpInformation(email: String, firstName: Option[String], lastName: Option[String], password: String)
   implicit val SignuPRead = Json.format[SignUpInformation]

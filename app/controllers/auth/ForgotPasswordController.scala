@@ -4,13 +4,13 @@ import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import controllers.{ WebJarAssets, auth }
+import controllers.auth
 import models.services.{ AuthTokenService, UserService }
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.json.{ Json, Reads }
+import play.api.libs.json.Json
 import play.api.libs.mailer.{ Email, MailerClient }
-import play.api.mvc.{ Action, AnyContent, BodyParsers, Controller }
+import play.api.mvc.Controller
 import utils.auth.DefaultEnv
 import utils.json.JsonFormats
 
@@ -24,15 +24,13 @@ import scala.concurrent.Future
  * @param userService      The user service implementation.
  * @param authTokenService The auth token service implementation.
  * @param mailerClient     The mailer client.
- * @param webJarAssets     The WebJar assets locator.
  */
 class ForgotPasswordController @Inject() (
   val messagesApi: MessagesApi,
   silhouette: Silhouette[DefaultEnv],
   userService: UserService,
   authTokenService: AuthTokenService,
-  mailerClient: MailerClient,
-  implicit val webJarAssets: WebJarAssets)
+  mailerClient: MailerClient)
   extends Controller with I18nSupport {
   case class ForgotPasswordData(email: String)
   implicit val forgotPasswordRead = Json.format[ForgotPasswordData]

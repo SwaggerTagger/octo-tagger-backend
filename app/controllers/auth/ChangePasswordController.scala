@@ -7,17 +7,14 @@ import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{ Credentials, PasswordHasherRegistry, PasswordInfo }
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import controllers.{ WebJarAssets, auth }
 import models.services.UserService
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.mvc._
 import utils.auth.{ DefaultEnv, WithProvider }
-import play.api.libs.functional.syntax._
 import utils.json.JsonFormats
-
-import scala.concurrent.Future
 
 /**
  * The `Change Password` controller.
@@ -28,7 +25,6 @@ import scala.concurrent.Future
  * @param credentialsProvider    The credentials provider.
  * @param authInfoRepository     The auth info repository.
  * @param passwordHasherRegistry The password hasher registry.
- * @param webJarAssets           The WebJar assets locator.
  */
 class ChangePasswordController @Inject() (
   val messagesApi: MessagesApi,
@@ -36,8 +32,7 @@ class ChangePasswordController @Inject() (
   userService: UserService,
   credentialsProvider: CredentialsProvider,
   authInfoRepository: AuthInfoRepository,
-  passwordHasherRegistry: PasswordHasherRegistry,
-  implicit val webJarAssets: WebJarAssets)
+  passwordHasherRegistry: PasswordHasherRegistry)
   extends Controller with I18nSupport {
 
   case class ChangePasswordData(currentPassword: String, newPassword: String)

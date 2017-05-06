@@ -6,7 +6,6 @@ import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.impl.providers._
-import controllers.{ WebJarAssets, auth, pages }
 import models.services.UserService
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.libs.concurrent.Execution.Implicits._
@@ -24,15 +23,13 @@ import scala.concurrent.Future
  * @param userService The user service implementation.
  * @param authInfoRepository The auth info service implementation.
  * @param socialProviderRegistry The social provider registry.
- * @param webJarAssets The webjar assets implementation.
  */
 class SocialAuthController @Inject() (
   val messagesApi: MessagesApi,
   silhouette: Silhouette[DefaultEnv],
   userService: UserService,
   authInfoRepository: AuthInfoRepository,
-  socialProviderRegistry: SocialProviderRegistry,
-  implicit val webJarAssets: WebJarAssets)
+  socialProviderRegistry: SocialProviderRegistry)
   extends Controller with I18nSupport with Logger {
 
   /**

@@ -9,14 +9,13 @@ import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{ Clock, Credentials }
 import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
 import com.mohiva.play.silhouette.impl.providers._
-import controllers.{ WebJarAssets, auth, pages }
 import models.services.UserService
 import net.ceedubs.ficus.Ficus._
 import play.api.Configuration
-import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
+import play.api.i18n.{ I18nSupport, MessagesApi }
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
-import play.api.mvc.{ Action, AnyContent, Call, Controller }
+import play.api.mvc.{ Call, Controller }
 import utils.auth.DefaultEnv
 import utils.json.JsonFormats
 
@@ -35,7 +34,6 @@ import scala.language.postfixOps
  * @param socialProviderRegistry The social provider registry.
  * @param configuration          The Play configuration.
  * @param clock                  The clock instance.
- * @param webJarAssets           The webjar assets implementation.
  */
 class SignInController @Inject() (
   val messagesApi: MessagesApi,
@@ -45,8 +43,7 @@ class SignInController @Inject() (
   credentialsProvider: CredentialsProvider,
   socialProviderRegistry: SocialProviderRegistry,
   configuration: Configuration,
-  clock: Clock,
-  implicit val webJarAssets: WebJarAssets)
+  clock: Clock)
   extends Controller with I18nSupport {
   case class SignInData(password: String, email: String, rememberMe: Option[Boolean])
   implicit val signInRead = Json.format[SignInData]

@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import controllers.{ WebJarAssets, auth }
+import controllers.auth
 import models.services.{ AuthTokenService, UserService }
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.libs.concurrent.Execution.Implicits._
@@ -26,15 +26,13 @@ import scala.language.postfixOps
  * @param userService      The user service implementation.
  * @param authTokenService The auth token service implementation.
  * @param mailerClient     The mailer client.
- * @param webJarAssets     The WebJar assets locator.
  */
 class ActivateAccountController @Inject() (
   val messagesApi: MessagesApi,
   silhouette: Silhouette[DefaultEnv],
   userService: UserService,
   authTokenService: AuthTokenService,
-  mailerClient: MailerClient,
-  implicit val webJarAssets: WebJarAssets)
+  mailerClient: MailerClient)
   extends Controller with I18nSupport {
 
   /**

@@ -7,7 +7,6 @@ import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{ PasswordHasherRegistry, PasswordInfo }
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import controllers.{ WebJarAssets, auth }
 import models.services.{ AuthTokenService, UserService }
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.libs.concurrent.Execution.Implicits._
@@ -27,7 +26,6 @@ import scala.concurrent.Future
  * @param authInfoRepository     The auth info repository.
  * @param passwordHasherRegistry The password hasher registry.
  * @param authTokenService       The auth token service implementation.
- * @param webJarAssets           The WebJar assets locator.
  */
 class ResetPasswordController @Inject() (
   val messagesApi: MessagesApi,
@@ -35,8 +33,7 @@ class ResetPasswordController @Inject() (
   userService: UserService,
   authInfoRepository: AuthInfoRepository,
   passwordHasherRegistry: PasswordHasherRegistry,
-  authTokenService: AuthTokenService,
-  implicit val webJarAssets: WebJarAssets)
+  authTokenService: AuthTokenService)
   extends Controller with I18nSupport {
 
   /**
