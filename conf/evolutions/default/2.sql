@@ -9,6 +9,7 @@ CREATE TABLE images (
   classification_duration BIGINT,
   height INTEGER NOT NULL,
   width INTEGER NOT NULL,
+  filename VARCHAR NOT NULL,
   status CHARACTER VARYING
 );
 # --- !Downs

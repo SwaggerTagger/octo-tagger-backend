@@ -46,7 +46,7 @@ class ImageController @Inject() (
       case Some(file) => getImageMimeType(file.filename) match {
         case Some(mimeType) =>
           val result = (tagImageActor ?
-            TagImageActor.TagImage(file.ref.file, mimeType, request.identity.userID)).mapTo[TaggingImage]
+            TagImageActor.TagImage(file.ref.file, mimeType, request.identity.userID, file.filename)).mapTo[TaggingImage]
 
           val resolved = Await.result(result, 60.seconds)
 

@@ -19,16 +19,16 @@ class TagImageActor @Inject() (
   import TagImageActor._
 
   override def receive = {
-    case TagImage(file, mimetype, user) =>
+    case TagImage(file, mimetype, user, filename) =>
       Future {
         val (height, width) = Await.result(utils.images.ImageHelper.getImageDimensions(file), 10.seconds)
         val (url, date) = Await.result(blobStorage.upload(file, mimetype), 50.seconds)
-        Await.result(imageDAO.create(url, date, user, height, width), 10.seconds)
+        Await.result(imageDAO.create(url, date, user, height, width, filename), 10.seconds)
       }(ExecutionContext.Implicits.global) pipeTo sender
   }
 }
 
 object TagImageActor {
   def props = Props[TagImageActor]
-  case class TagImage(file: File, mimetype: String, user: UUID)
+  case class TagImage(file: File, mimetype: String, user: UUID, filename: String)
 }
