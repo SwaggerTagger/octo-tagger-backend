@@ -4,6 +4,7 @@ import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api.actions.SecuredErrorHandler
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
+import play.api.libs.json.Json
 import play.api.mvc.{ RequestHeader, Result }
 import play.api.mvc.Results._
 
@@ -25,7 +26,7 @@ class CustomSecuredErrorHandler @Inject() (val messagesApi: MessagesApi) extends
    * @return The result to send to the client.
    */
   override def onNotAuthenticated(implicit request: RequestHeader): Future[Result] = {
-    Future.successful(Redirect(controllers.auth.routes.SignInController.view()))
+    Future.successful(Unauthorized)
   }
 
   /**
@@ -37,6 +38,6 @@ class CustomSecuredErrorHandler @Inject() (val messagesApi: MessagesApi) extends
    * @return The result to send to the client.
    */
   override def onNotAuthorized(implicit request: RequestHeader): Future[Result] = {
-    Future.successful(Redirect(controllers.auth.routes.SignInController.view()).flashing("error" -> Messages("access.denied")))
+    Future.successful(Forbidden(Json.obj("error" -> "You are not allowed to access this resource")))
   }
 }

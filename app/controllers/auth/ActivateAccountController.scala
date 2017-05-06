@@ -6,12 +6,13 @@ import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import controllers.{ WebJarAssets, auth }
+import controllers.auth
 import models.services.{ AuthTokenService, UserService }
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.json.Json
 import play.api.libs.mailer.{ Email, MailerClient }
-import play.api.mvc.{ Action, AnyContent, Controller }
+import play.api.mvc.{ Action, AnyContent, Call, Controller }
 import utils.auth.DefaultEnv
 
 import scala.concurrent.Future
@@ -25,15 +26,13 @@ import scala.language.postfixOps
  * @param userService      The user service implementation.
  * @param authTokenService The auth token service implementation.
  * @param mailerClient     The mailer client.
- * @param webJarAssets     The WebJar assets locator.
  */
 class ActivateAccountController @Inject() (
   val messagesApi: MessagesApi,
   silhouette: Silhouette[DefaultEnv],
   userService: UserService,
   authTokenService: AuthTokenService,
-  mailerClient: MailerClient,
-  implicit val webJarAssets: WebJarAssets)
+  mailerClient: MailerClient)
   extends Controller with I18nSupport {
 
   /**
@@ -45,7 +44,7 @@ class ActivateAccountController @Inject() (
   def send(email: String): Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     val decodedEmail = URLDecoder.decode(email, "UTF-8")
     val loginInfo = LoginInfo(CredentialsProvider.ID, decodedEmail)
-    val result = Redirect(auth.routes.SignInController.view()).flashing("info" -> Messages("activation.email.sent", decodedEmail))
+    val result = NoContent
 
     userService.retrieve(loginInfo).flatMap {
       case Some(user) if !user.activated =>
@@ -76,11 +75,11 @@ class ActivateAccountController @Inject() (
       case Some(authToken) => userService.retrieve(authToken.userID).flatMap {
         case Some(user) if user.loginInfo.providerID == CredentialsProvider.ID =>
           userService.save(user.copy(activated = true)).map { _ =>
-            Redirect(auth.routes.SignInController.view()).flashing("success" -> Messages("account.activated"))
+            Redirect(Call("GET", "/#/login/activated"))
           }
-        case _ => Future.successful(Redirect(auth.routes.SignInController.view()).flashing("error" -> Messages("invalid.activation.link")))
+        case _ => Future.successful(NotFound(Json.obj("error" -> Messages("invalid.activation.link"))))
       }
-      case None => Future.successful(Redirect(auth.routes.SignInController.view()).flashing("error" -> Messages("invalid.activation.link")))
+      case None => Future.successful(NotFound(Json.obj("error" -> Messages("invalid.activation.link"))))
     }
   }
 }

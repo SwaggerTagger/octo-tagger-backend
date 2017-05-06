@@ -46,12 +46,12 @@ class ImageController @Inject() (
       case Some(file) => getImageMimeType(file.filename) match {
         case Some(mimeType) =>
           val result = (tagImageActor ?
-            TagImageActor.TagImage(file.ref.file, mimeType, request.identity.userID)).mapTo[TaggingImage]
+            TagImageActor.TagImage(file.ref.file, mimeType, request.identity.userID, file.filename)).mapTo[TaggingImage]
 
           val resolved = Await.result(result, 60.seconds)
 
           kafkaWriteActor ! KafkaWriteActor.QueuePrediction(resolved)
-          Future.successful(Ok(Json.writes[TaggingImage].writes(resolved)))
+          Future.successful(Created(Json.writes[TaggingImage].writes(resolved)))
 
         case _ => Future.successful(BadRequest("Unsupported file type"))
       }
@@ -70,6 +70,6 @@ class ImageController @Inject() (
     for {
       url <- imageDAO.delete(imageId, request.identity.userID)
       _ <- blobStorage.delete(url)
-    } yield Ok
+    } yield NoContent
   }
 }
