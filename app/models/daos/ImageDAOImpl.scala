@@ -33,7 +33,7 @@ class ImageDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProv
   }
 
   override def listOwnImages(userId: UUID): Future[Seq[TaggingImage]] = {
-    val query = ImageDAOImpl.images.filter(_.ownedBy === userId).sortBy(_.imageId.asc).result
+    val query = ImageDAOImpl.images.filter(_.ownedBy === userId).sortBy(_.uploadedAt.desc).result
     db.run(query)
   }
 
