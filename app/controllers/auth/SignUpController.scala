@@ -74,7 +74,7 @@ class SignUpController @Inject() (
           loginInfo = loginInfo,
           firstName = firstName,
           lastName = lastName,
-          fullName = Some(firstName + " " + lastName),
+          fullName = Some(firstName.getOrElse("") + " " + lastName.getOrElse("")),
           email = Some(email),
           avatarURL = None,
           activated = false

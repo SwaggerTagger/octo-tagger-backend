@@ -59,7 +59,7 @@ class SignInController @Inject() (
       val result = NoContent
       userService.retrieve(loginInfo).flatMap {
         case Some(user) if !user.activated =>
-          Future.successful(NoContent)
+          Future.successful(PreconditionFailed(Json.obj("error" -> "Please validate your email address")))
         case Some(user) =>
           val c = configuration.underlying
           silhouette.env.authenticatorService.create(loginInfo).map {
