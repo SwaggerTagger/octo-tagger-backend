@@ -9,12 +9,13 @@ import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{ Clock, Credentials }
 import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
 import com.mohiva.play.silhouette.impl.providers._
+import models.{ Prediction, User }
 import models.services.UserService
 import net.ceedubs.ficus.Ficus._
 import play.api.Configuration
 import play.api.i18n.{ I18nSupport, MessagesApi }
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.json.Json
+import play.api.libs.json.{ JsPath, JsValue, Json, Writes }
 import play.api.mvc.{ Call, Controller }
 import utils.auth.DefaultEnv
 import utils.json.JsonFormats
@@ -46,6 +47,9 @@ class SignInController @Inject() (
   clock: Clock)
   extends Controller with I18nSupport {
   case class SignInData(password: String, email: String)
+  implicit object UserFormat extends Writes[User] {
+    override def writes(o: User): JsValue = Json.obj("firstName" -> o.firstName, "lastname" -> o.lastName, "fullName" -> o.fullName, "avatarUrl" -> o.avatarURL)
+  }
   implicit val signInRead = Json.format[SignInData]
   /**
    * Handles the submitted form.
@@ -64,7 +68,7 @@ class SignInController @Inject() (
           silhouette.env.authenticatorService.create(loginInfo).flatMap { authenticator =>
             silhouette.env.eventBus.publish(LoginEvent(user, request))
             silhouette.env.authenticatorService.init(authenticator).flatMap { v =>
-              silhouette.env.authenticatorService.embed(v, result)
+              silhouette.env.authenticatorService.embed(v, Ok(UserFormat.writes(user)))
             }
           }
         case None => Future.failed(new IdentityNotFoundException("Couldn't find user"))
