@@ -30,7 +30,7 @@ class BlobStorage @Inject() (configuration: play.api.Configuration) {
     try {
       val blobClient = storageAccount.createCloudBlobClient
       val container = blobClient.getContainerReference("pictures")
-      val blob = container.getBlockBlobReference(url)
+      val blob = container.getBlockBlobReference(url.substring(url.lastIndexOf('/') + 1))
       blob.deleteIfExists()
     } catch {
       case e: Exception =>

@@ -45,7 +45,7 @@ class SignInController @Inject() (
   configuration: Configuration,
   clock: Clock)
   extends Controller with I18nSupport {
-  case class SignInData(password: String, email: String, rememberMe: Option[Boolean])
+  case class SignInData(password: String, email: String)
   implicit val signInRead = Json.format[SignInData]
   /**
    * Handles the submitted form.
@@ -61,16 +61,7 @@ class SignInController @Inject() (
         case Some(user) if !user.activated =>
           Future.successful(PreconditionFailed(Json.obj("error" -> "Please validate your email address")))
         case Some(user) =>
-          val c = configuration.underlying
-          silhouette.env.authenticatorService.create(loginInfo).map {
-            case authenticator if request.body.rememberMe.getOrElse(false) =>
-              authenticator.copy(
-                expirationDateTime = clock.now + c.as[FiniteDuration]("silhouette.authenticator.rememberMe.authenticatorExpiry"),
-                idleTimeout = c.getAs[FiniteDuration]("silhouette.authenticator.rememberMe.authenticatorIdleTimeout"),
-                cookieMaxAge = c.getAs[FiniteDuration]("silhouette.authenticator.rememberMe.cookieMaxAge")
-              )
-            case authenticator => authenticator
-          }.flatMap { authenticator =>
+          silhouette.env.authenticatorService.create(loginInfo).flatMap { authenticator =>
             silhouette.env.eventBus.publish(LoginEvent(user, request))
             silhouette.env.authenticatorService.init(authenticator).flatMap { v =>
               silhouette.env.authenticatorService.embed(v, result)

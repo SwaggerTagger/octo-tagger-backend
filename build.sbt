@@ -24,7 +24,7 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "9.4.1212",
   "com.typesafe.play" %% "play-slick" % "2.0.0",
   "com.typesafe.play" %% "play-slick-evolutions" % "2.0.0",
-  "com.microsoft.azure" % "azure-storage" % "5.0.0",
+  "com.microsoft.azure" % "azure-storage" % "5.1.0",
   "com.typesafe.akka" %% "akka-stream-kafka" % "0.14",
   specs2 % Test,
   ws,
