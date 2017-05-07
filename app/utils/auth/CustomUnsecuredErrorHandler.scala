@@ -21,6 +21,6 @@ class CustomUnsecuredErrorHandler extends UnsecuredErrorHandler {
    * @return The result to send to the client.
    */
   override def onNotAuthorized(implicit request: RequestHeader): Future[Result] = {
-    Future.successful(Forbidden(Json.obj("error" -> "You are not allowed to access this resource")))
+    Future.successful(Forbidden(Json.obj("error" -> "You are already signed in")))
   }
 }
