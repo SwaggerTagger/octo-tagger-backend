@@ -26,6 +26,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-slick-evolutions" % "2.0.0",
   "com.microsoft.azure" % "azure-storage" % "5.1.0",
   "com.typesafe.akka" %% "akka-stream-kafka" % "0.14",
+  "com.sksamuel.scrimage" %% "scrimage-core" % "2.1.7",
   specs2 % Test,
   ws,
   cache,

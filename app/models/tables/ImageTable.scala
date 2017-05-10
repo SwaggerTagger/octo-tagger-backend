@@ -12,6 +12,8 @@ class ImageTable(tag: Tag) extends Table[TaggingImage](tag, "images") {
 
   def url: Rep[String] = column[String]("url")
 
+  def thumbnailUrl: Rep[String] = column[String]("thumbnail_url")
+
   def uploadedAt: Rep[Timestamp] = column[Timestamp]("uploaded_at")
 
   def ownedBy: Rep[UUID] = column[UUID]("owned_by")
@@ -27,5 +29,5 @@ class ImageTable(tag: Tag) extends Table[TaggingImage](tag, "images") {
   def filename: Rep[String] = column[String]("filename")
 
   def status: Rep[Option[String]] = column[Option[String]]("status")
-  override def * : ProvenShape[TaggingImage] = (imageId, url, uploadedAt, ownedBy, height, width, filename, classificationStart, classificationDuration, status) <> (TaggingImage.tupled, TaggingImage.unapply)
+  override def * : ProvenShape[TaggingImage] = (imageId, url, thumbnailUrl, uploadedAt, ownedBy, height, width, filename, classificationStart, classificationDuration, status) <> (TaggingImage.tupled, TaggingImage.unapply)
 }
