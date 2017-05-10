@@ -17,20 +17,27 @@ class TagImageActor @Inject() (
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
   override def receive = {
-    case TagImage(file, mimetype, user, filename) =>
+    case TagImage(file, user, filename) =>
       val sen = sender
-      for {
-        image <- Future.successful(Image.fromFile(file))
-        (height, width) <- Future.successful((image.height, image.width))
-        thumbnail <- imageHelper.createThumbnail(image)
-        (url, date) <- blobStorage.upload(file, mimetype)
-        (thumbnailUrl, _) <- blobStorage.upload(thumbnail.file, "image/jpeg")
-        image <- imageDAO.create(url, thumbnailUrl, date, user, height, width, filename)
-      } yield sen ! image
+      try {
+        val image = Image.fromFile(file)
+        for {
+          (height, width) <- Future.successful((image.height, image.width))
+          thumbnail <- imageHelper.createThumbnail(image)
+          convertedImage <- imageHelper.convertImageToJpeg(image)
+          (url, date) <- blobStorage.upload(convertedImage.file, "image/jpeg")
+          (thumbnailUrl, _) <- blobStorage.upload(thumbnail.file, "image/jpeg")
+          image <- imageDAO.create(url, thumbnailUrl, date, user, height, width, filename)
+        } yield sen ! Right(image)
+      } catch {
+        case e: Exception => {
+          sen ! Left(e)
+        }
+      }
   }
 }
 
 object TagImageActor {
   def props = Props[TagImageActor]
-  case class TagImage(file: File, mimetype: String, user: UUID, filename: String)
+  case class TagImage(file: File, user: UUID, filename: String)
 }

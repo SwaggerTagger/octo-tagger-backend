@@ -21,10 +21,16 @@ class ImageHelper @Inject() (configuration: play.api.Configuration) {
   }
   lazy val maxWidth = configuration.underlying.getInt("octotagger.images.thumbnail.maxWidth")
   lazy val maxHeight = configuration.underlying.getInt("octotagger.images.thumbnail.maxHeight")
-  implicit val writer = JpegWriter().withCompression(50).withProgressive(true)
   def createThumbnail(image: Image): Future[TemporaryFile] = Future[TemporaryFile] {
+    implicit val writer = JpegWriter().withCompression(50).withProgressive(true)
     val file = File.createTempFile("thumbnails", ".jpg")
     image.max(maxWidth, maxHeight).output(file)
+    new TemporaryFile(file)
+  }
+  def convertImageToJpeg(image: Image): Future[TemporaryFile] = Future[TemporaryFile] {
+    implicit val writer = JpegWriter().withCompression(30).withProgressive(true)
+    val file = File.createTempFile("converted", ".jpg")
+    image.output(file)
     new TemporaryFile(file)
   }
 

@@ -4,23 +4,26 @@ import java.util.UUID
 import javax.inject.Inject
 
 import akka.actor.ActorRef
+import akka.pattern.ask
 import akka.util.{ ByteString, Timeout }
 import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
+import com.sksamuel.scrimage.ImageParseException
 import models.daos.{ ImageDAO, PredictionDAO }
 import models.{ Prediction, TaggingImage }
+import play.Logger
 import play.api.http.Writeable
 import play.api.i18n.{ I18nSupport, MessagesApi }
 import play.api.libs.json.{ JsValue, Json }
 import play.api.mvc._
-import akka.pattern.ask
 import utils.actors.{ KafkaWriteActor, TagImageActor }
 import utils.auth.DefaultEnv
 import utils.azure.BlobStorage
+import utils.exceptions.HttpError
 import utils.json.JsonFormats
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.concurrent.{ Await, Future }
 
 class ImageController @Inject() (
   blobStorage: BlobStorage,
@@ -32,30 +35,31 @@ class ImageController @Inject() (
   silhouette: Silhouette[DefaultEnv])
   extends Controller with I18nSupport {
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
-  def getImageMimeType(filename: String) = filename.toLowerCase match {
-    case n if (n.endsWith(".jpeg") || n.endsWith(".jpg")) => Some("image/jpeg")
-    case n if n.endsWith(".png") => Some("image/png")
-    case _ => None
-  }
 
   implicit val jsonPrettyWritable = new Writeable[JsValue]((value) => ByteString(Json.prettyPrint(value)), Some("application/json"))
   implicit val timeout = Timeout(30.seconds)
 
   def uploadImage = silhouette.SecuredAction.async(parse.multipartFormData) { request =>
     request.body.file("picture") match {
-      case Some(file) => getImageMimeType(file.filename) match {
-        case Some(mimeType) =>
-          val result = (tagImageActor ?
-            TagImageActor.TagImage(file.ref.file, mimeType, request.identity.userID, file.filename)).mapTo[TaggingImage]
+      case Some(file) =>
 
-          val resolved = Await.result(result, 60.seconds)
+        ((tagImageActor ?
+          TagImageActor.TagImage(file.ref.file, request.identity.userID, file.filename)) recoverWith {
+            case e: Exception => {
+              Logger.error("Error when uploading", e)
+              Future.failed(e)
+            }
+          }
+        ).mapTo[Either[Exception, TaggingImage]].map {
+            case Left(_: ImageParseException) => throw new HttpError(play.api.mvc.Results.UnsupportedMediaType("Unsupported file type"))
+            case Left(e) => throw e
+            case Right(image) => {
+              kafkaWriteActor ! KafkaWriteActor.QueuePrediction(image)
+              Created(Json.writes[TaggingImage].writes(image))
+            }
+          }
 
-          kafkaWriteActor ! KafkaWriteActor.QueuePrediction(resolved)
-          Future.successful(Created(Json.writes[TaggingImage].writes(resolved)))
-
-        case _ => Future.successful(BadRequest("Unsupported file type"))
-      }
-      case _ => Future.successful(BadRequest("You must supply the filename/extension with the X-Filename header"))
+      case _ => Future.successful(BadRequest("You must supply an image for this request"))
     }
   }
 
