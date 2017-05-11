@@ -26,8 +26,8 @@ class ImageDAOImpl @Inject() (protected val dbConfigProvider: DatabaseConfigProv
 
   import dbConfig.driver.api._
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
-  override def create(url: String, thumbnailUrl: String, uploadDate: Date, userId: UUID, height: Int, width: Int, filename: String): Future[TaggingImage] = {
-    val image = TaggingImage(UUID.randomUUID(), url, thumbnailUrl: String, Timestamp.from(uploadDate.toInstant), userId, height, width, filename)
+  override def create(url: String, thumbnailUrl: Option[String], uploadDate: Date, userId: UUID, height: Int, width: Int, filename: String): Future[TaggingImage] = {
+    val image = TaggingImage(UUID.randomUUID(), url, thumbnailUrl, Timestamp.from(uploadDate.toInstant), userId, height, width, filename)
 
     db.run(ImageDAOImpl.images += image).map(_ => image)
   }

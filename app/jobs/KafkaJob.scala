@@ -1,22 +1,25 @@
 package jobs
 
-import java.util.{ Date, UUID }
+import java.util.{Date, UUID}
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorRef}
 import akka.stream.ActorMaterializer
 import com.google.inject.Inject
+import com.google.inject.name.Named
 import jobs.KafkaJob.OnStart
 import models.Prediction
-import models.daos.{ ImageDAO, PredictionDAO }
+import models.daos.{ImageDAO, PredictionDAO}
 import models.services.Kafka
 import play.Logger
-import play.api.libs.json.{ JsObject, JsValue, Json }
+import play.api.libs.json.{JsObject, JsValue, Json}
+import utils.actors.SSEPublisher
 
 import scala.concurrent.Future
-import scala.util.{ Failure, Success }
+import scala.util.{Failure, Success}
 
 class KafkaJob @Inject() (
   kafka: Kafka,
+  @Named("sse-publisher") ssepublish: ActorRef,
   imageDAO: ImageDAO,
   predictionDAO: PredictionDAO
 ) extends Actor {
@@ -40,7 +43,10 @@ class KafkaJob @Inject() (
               case Some("CLASSIFICATION_STARTING") =>
                 for {
                   status <- imageDAO.setClassificationStart(UUID.fromString(x.key()), new Date)
-                } yield sender ! status
+                } yield {
+                  sender ! status
+                  ssepublish ! SSEPublisher.ClassificationStart(UUID.fromString(x.key()))
+                }
 
               case Some(other) =>
                 for {
@@ -50,6 +56,7 @@ class KafkaJob @Inject() (
               case None =>
                 Logger.warn(s"Invalid Message from Kafka: ${x.value()}")
             }
+
           })
       }
 
@@ -78,7 +85,10 @@ class KafkaJob @Inject() (
                     Logger.error(s"Failed writing into Database: ${e.getMessage}")
                     Future.failed(e)
                 }
-            } yield sender() ! true
+            } yield {
+              ssepublish ! SSEPublisher.ClassificationFinished(UUID.fromString(x.key()))
+              sender() ! true
+            }
           })
       }
   }

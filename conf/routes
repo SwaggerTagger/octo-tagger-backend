@@ -22,5 +22,4 @@ POST        /images                          controllers.tagging.ImageController
 DELETE      /images/:id                      controllers.tagging.ImageController.deleteImage(id: java.util.UUID)
 GET         /images                          controllers.tagging.ImageController.listImages
 
-POST        /events                          controllers.tagging.EventController.streamtoken
-POST        /events/:tokenString             controllers.tagging.EventController.stream(tokenString: String)
+GET        /events                          controllers.tagging.EventController.stream

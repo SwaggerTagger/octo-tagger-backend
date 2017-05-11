@@ -20,7 +20,7 @@ import play.api.libs.iteratee.{ Concurrent, Enumerator }
 import play.api.libs.json.{ JsValue, Json }
 import play.api.mvc._
 import play.mvc.Http
-import utils.actors.SSEPublisher.SSEEvent
+import utils.actors.SSEPublisher.ImageTaggingEvent
 import utils.actors.{ KafkaWriteActor, TagImageActor }
 import utils.auth.DefaultEnv
 import utils.azure.BlobStorage

@@ -20,6 +20,6 @@ class BaseModule extends AbstractModule with ScalaModule {
     bind[PredictionDAO].to[PredictionDAOImpl]
     bind[AuthTokenDAO].to[AuthTokenDAOImpl]
     bind[AuthTokenService].to[AuthTokenServiceImpl]
-    bind[SSETokenDAO].to[SSETokenImpl]
+
   }
 }

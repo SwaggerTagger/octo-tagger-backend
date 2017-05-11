@@ -11,9 +11,9 @@ import scala.concurrent.duration._
 class Scheduler @Inject() (
   system: ActorSystem,
   @Named("kafka-job") kafkaJob: ActorRef,
-  @Named("sse-token-cleaner") sseTokenCleaner: ActorRef) {
+  @Named("sse-debug-job") ssedebug: ActorRef) {
   import scala.concurrent.ExecutionContext.Implicits.global
-  system.scheduler.schedule(5.minutes, 5.minutes, sseTokenCleaner, SSETokenCleaner.OnStart)
+  //system.scheduler.schedule(5.seconds, 5.seconds, ssedebug, SSEDebug.OnStart)
   system.scheduler.scheduleOnce(50.milliseconds) {
     kafkaJob ! KafkaJob.OnStart
   }
