@@ -1,9 +1,8 @@
 package models.tables
 
-import java.sql.Timestamp
-import java.util.{ Date, UUID }
+import java.util.UUID
 
-import models.{ Prediction, TaggingImage }
+import models.Prediction
 import slick.driver.PostgresDriver.api._
 import slick.lifted.ProvenShape
 

@@ -22,11 +22,10 @@ object JsonFormats {
   }
 
   implicit val taggingImageFormat = Json.format[TaggingImage]
-
-  def writeImageswithPredicitions(images: Seq[TaggingImage], predicitions: Seq[Prediction]) = {
-    implicit object PredictionFormat extends Writes[Prediction] {
-      override def writes(o: Prediction): JsValue = Json.format[Prediction].writes(o) - ("imageId")
-    }
+  implicit object PredictionFormat extends Writes[Prediction] {
+    override def writes(o: Prediction): JsValue = Json.format[Prediction].writes(o) - ("imageId")
+  }
+  def writeImageswithPredicitions(images: Seq[TaggingImage], predicitions: Seq[Prediction]): JsValue = {
 
     val predictionMap = scala.collection.mutable.HashMap.empty[UUID, scala.collection.mutable.MutableList[Prediction]]
     predicitions.foreach(prediction => {
@@ -44,6 +43,13 @@ object JsonFormats {
 
     }).seq
     Json.toJson(imagesJson)
+  }
+  def writeImageswithPredictions(image: TaggingImage, predictions: Seq[Prediction]): JsValue = {
+    val jImage = Json.toJson(image).as[JsObject]
+    predictions.length match {
+      case l if l > 0 => jImage.+(("predictions", Json.toJson(predictions)))
+      case _ => jImage
+    }
   }
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
   def validateJson[A: Reads]: BodyParser[A] = BodyParsers.parse.json.validate(
