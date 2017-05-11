@@ -6,6 +6,7 @@ import java.util.Date
 import com.microsoft.azure.storage.CloudStorageAccount
 import com.google.inject.Inject
 import play.Logger
+import utils.Helper
 
 import scala.concurrent.Future
 
@@ -14,18 +15,9 @@ import scala.concurrent.Future
  */
 class BlobStorage @Inject() (configuration: play.api.Configuration) {
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
-  // Random generator
-  val random = new scala.util.Random(new java.security.SecureRandom())
 
-  // Generate a random string of length n from the given alphabet
-  def randomString(alphabet: String)(n: Int): String =
-    Stream.continually(random.nextInt(alphabet.size)).map(alphabet).take(n).mkString
-  lazy val storageAccount = CloudStorageAccount.parse(configuration.underlying.getString("octotagger.azure.pictureblob.connection.string"))
-
-  // Generate a random alphabnumeric string of length n
-  def randomAlphanumericString(n: Int) =
-    randomString("abcdefghijklmnopqrstuvwxyz0123456789")(n)
   // Define the connection-string with your values
+  lazy val storageAccount = CloudStorageAccount.parse(configuration.underlying.getString("octotagger.azure.pictureblob.connection.string"))
   def delete(url: String): Future[Boolean] = Future[Boolean] {
     try {
       val blobClient = storageAccount.createCloudBlobClient
@@ -45,7 +37,7 @@ class BlobStorage @Inject() (configuration: play.api.Configuration) {
       val blobClient = storageAccount.createCloudBlobClient
       // Retrieve reference to a previously created container.
       val container = blobClient.getContainerReference("pictures")
-      val name = randomAlphanumericString(40)
+      val name = Helper.randomAlphanumericString(40)
       val extension = mimeType match {
         case "image/jpeg" => ".jpg"
         case "image/png" => ".png"

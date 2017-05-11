@@ -12,7 +12,7 @@ class ImageTable(tag: Tag) extends Table[TaggingImage](tag, "images") {
 
   def url: Rep[String] = column[String]("url")
 
-  def thumbnailUrl: Rep[String] = column[String]("thumbnail_url")
+  def thumbnailUrl: Rep[Option[String]] = column[Option[String]]("thumbnail_url")
 
   def uploadedAt: Rep[Timestamp] = column[Timestamp]("uploaded_at")
 

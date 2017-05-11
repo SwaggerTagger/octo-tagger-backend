@@ -27,7 +27,7 @@ class TagImageActor @Inject() (
           convertedImage <- imageHelper.convertImageToJpeg(image)
           (url, date) <- blobStorage.upload(convertedImage.file, "image/jpeg")
           (thumbnailUrl, _) <- blobStorage.upload(thumbnail.file, "image/jpeg")
-          image <- imageDAO.create(url, thumbnailUrl, date, user, height, width, filename)
+          image <- imageDAO.create(url, Some(thumbnailUrl), date, user, height, width, filename)
         } yield sen ! Right(image)
       } catch {
         case e: Exception => {
