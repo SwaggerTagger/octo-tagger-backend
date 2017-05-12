@@ -1,21 +1,21 @@
 package jobs
 
-import java.util.{Date, UUID}
+import java.util.{ Date, UUID }
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{ Actor, ActorRef }
 import akka.stream.ActorMaterializer
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import jobs.KafkaJob.OnStart
 import models.Prediction
-import models.daos.{ImageDAO, PredictionDAO}
+import models.daos.{ ImageDAO, PredictionDAO }
 import models.services.Kafka
 import play.Logger
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{ JsObject, JsValue, Json }
 import utils.actors.SSEPublisher
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 class KafkaJob @Inject() (
   kafka: Kafka,

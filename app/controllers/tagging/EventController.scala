@@ -38,6 +38,9 @@ class EventController @Inject() (
       Logger.debug(s"Sending event for image: ${event.image.imageId} to user: ${event.image.ownedBy}")
       Helper.convertEventToByteString(SSEvent(None, Some(event.eventType), Some(Json.obj("image" -> JsonFormats.writeImageswithPredictions(event.image, event.predictions)).toString)))
     })
-    Ok.chunked(source).as(ContentTypes.EVENT_STREAM)
+    Ok.chunked(source).withHeaders(
+      CACHE_CONTROL -> "no-cache",
+      "X-Accel-Buffering" -> "no"
+    ).as(ContentTypes.EVENT_STREAM)
   }
 }
