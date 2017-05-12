@@ -21,14 +21,18 @@ class TagImageActor @Inject() (
       val sen = sender
       try {
         val image = Image.fromFile(file)
-        for {
+        (for {
           (height, width) <- Future.successful((image.height, image.width))
           thumbnail <- imageHelper.createThumbnail(image)
           convertedImage <- imageHelper.convertImageToJpeg(image)
           (url, date) <- blobStorage.upload(convertedImage.file, "image/jpeg")
           (thumbnailUrl, _) <- blobStorage.upload(thumbnail.file, "image/jpeg")
           image <- imageDAO.create(url, Some(thumbnailUrl), date, user, height, width, filename)
-        } yield sen ! Right(image)
+        } yield image).map {
+          image => sen ! Right(image)
+        }.onFailure {
+          case t => sen ! Left(t)
+        }
       } catch {
         case e: Exception => {
           sen ! Left(e)
