@@ -1,0 +1,222 @@
+{
+	"variables": [],
+	"info": {
+		"name": "octo-tagger",
+		"_postman_id": "7a9d5d39-d5ff-280e-88d6-f48e3775836f",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"description": "",
+			"item": [
+				{
+					"name": "Sign Out",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.clearEnvironmentVariable(\"token\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{host}}{{prefix}}/signOut",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Csrf-Token",
+								"value": "nocheck",
+								"description": ""
+							},
+							{
+								"key": "X-Auth-Token",
+								"value": "{{token}}",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": ""
+							}
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Sign In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"X-Auth-Token is present\"] = postman.getResponseHeader(\"X-Auth-Token\");",
+									"if(responseCode.code === 200){",
+									"    postman.setEnvironmentVariable(\"token\", postman.getResponseHeader(\"X-Auth-Token\"));",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{host}}{{prefix}}/signIn",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Csrf-Token",
+								"value": "nocheck",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-Auth-Token",
+								"value": "{{token}}",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\":\"{{user}}\",\n  \"password\":\"{{password}}\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "images",
+			"description": "",
+			"item": [
+				{
+					"name": "Upload image",
+					"request": {
+						"url": "{{host}}{{prefix}}/images",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Csrf-Token",
+								"value": "nocheck",
+								"description": ""
+							},
+							{
+								"key": "X-Auth-Token",
+								"value": "{{token}}",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "picture",
+									"type": "file",
+									"enabled": true,
+									"src": "2017-04-08 19_23_55-Clipboard.png"
+								}
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Get images",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var to = postman.getResponseHeader(\"X-Auth-Token\");",
+									"tests[\"X-Auth-Token is present\"] = postman.getResponseHeader(\"X-Auth-Token\");",
+									"if(to){",
+									"postman.setEnvironmentVariable(\"token\", to);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{host}}{{prefix}}/images",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Csrf-Token",
+								"value": "nocheck",
+								"description": ""
+							},
+							{
+								"key": "X-Auth-Token",
+								"value": "{{token}}",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": ""
+							}
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Delete image",
+					"request": {
+						"url": "{{host}}{{prefix}}/images/4f7fd074-ed92-4dd1-9ffe-462939c20e66",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Csrf-Token",
+								"value": "nocheck",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sign Up",
+			"request": {
+				"url": "{{host}}{{prefix}}/signUp",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Csrf-Token",
+						"value": "nocheck",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\":\"{{user}}\",\n  \"password\":\"{{password}}\",\n  \"firstName\":\"John\",\n  \"lastName\": \"Doe\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
